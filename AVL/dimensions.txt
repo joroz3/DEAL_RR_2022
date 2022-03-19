@@ -1,0 +1,2 @@
+Span:4.693505e+00 feet 
+Chord:8.800321e-01 feet

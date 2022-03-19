@@ -1,0 +1,118 @@
+LOAD .\DS1.avl
+PLOP
+g
+
+OPER
+d2 pm 0
+a a 0
+x
+st
+.\DS1_ST\a0.st
+sb
+.\DS1_ST\a0.sb
+t
+p
+d
+h
+
+a a 1
+x
+st
+.\DS1_ST\a1.st
+sb
+.\DS1_ST\a1.sb
+t
+h
+
+a a 2
+x
+st
+.\DS1_ST\a2.st
+sb
+.\DS1_ST\a2.sb
+t
+h
+
+a a 3
+x
+st
+.\DS1_ST\a3.st
+sb
+.\DS1_ST\a3.sb
+t
+h
+
+a a 4
+x
+st
+.\DS1_ST\a4.st
+sb
+.\DS1_ST\a4.sb
+t
+h
+
+a a 5
+x
+st
+.\DS1_ST\a5.st
+sb
+.\DS1_ST\a5.sb
+t
+h
+
+a a 6
+x
+st
+.\DS1_ST\a6.st
+sb
+.\DS1_ST\a6.sb
+t
+h
+
+a a 7
+x
+st
+.\DS1_ST\a7.st
+sb
+.\DS1_ST\a7.sb
+t
+h
+
+a a 8
+x
+st
+.\DS1_ST\a8.st
+sb
+.\DS1_ST\a8.sb
+t
+h
+
+a a 9
+x
+st
+.\DS1_ST\a9.st
+sb
+.\DS1_ST\a9.sb
+t
+h
+
+a a 10
+x
+st
+.\DS1_ST\a10.st
+sb
+.\DS1_ST\a10.sb
+t
+h
+
+a a 11
+x
+st
+.\DS1_ST\a11.st
+sb
+.\DS1_ST\a11.sb
+t
+h
+
+
+Quit

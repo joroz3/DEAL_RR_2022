@@ -1,0 +1,65 @@
+ ---------------------------------------------------------------
+ Vortex Lattice Output -- Total Forces
+
+ Configuration: Plane MVP                                                   
+     # Surfaces =   5
+     # Strips   =  56
+     # Vortices = 672
+
+  Sref =  216.00       Cref =  48.000       Bref =  4.5000    
+  Xref =  2.1000       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case:  -unnamed-                              
+
+  Alpha =  11.00000     pb/2V =  -0.00000     p'b/2V =  -0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.000     rb/2V =  -0.00000     r'b/2V =  -0.00000
+
+  CXtot =  -0.16378     Cltot =  -0.00000     Cl'tot =  -0.00000
+  CYtot =  -0.00000     Cmtot =   0.00000
+  CZtot =  -0.08737     Cntot =   0.00000     Cn'tot =   0.00000
+
+  CLtot =   0.05451
+  CDtot =   0.17744
+  CDvis =   0.00000     CDind = 0.1774431
+  CLff  =   0.09513     CDff  = 0.0226552    | Trefftz
+  CYff  =   0.00000         e =    1.3564    | Plane  
+
+   aileron         =   0.00000
+   elevator        = -59.43724
+   rudder          =   0.00000
+
+ ---------------------------------------------------------------
+
+ Geometry-axis derivatives...
+
+                    axial   vel. u     sideslip vel. v      normal  vel. w
+                  ----------------    ----------------    ----------------
+ x force CX  |    CXu =  -0.372389    CXv =  -0.000000    CXw =   0.199067
+ y force CY  |    CYu =  -0.000000    CYv =  -0.236398    CYw =   0.000000
+ z force CZ  |    CZu =  -0.040009    CZv =  -0.000000    CZw =  -0.709931
+ x mom.  Cl  |    Clu =   0.000000    Clv =  -2.102904    Clw =   0.000000
+ y mom.  Cm  |    Cmu =   0.013949    Cmv =  -0.000000    Cmw =  -0.071759
+ z mom.  Cn  |    Cnu =   0.000000    Cnv =   1.231483    Cnw =  -0.000000
+
+                      roll rate  p       pitch rate  q         yaw rate  r
+                  ----------------    ----------------    ----------------
+ x force CX  |    CXp =  -0.000000    CXq =   0.074502    CXr =   0.000000
+ y force CY  |    CYp =   3.766324    CYq =  -0.000000    CYr =   2.709353
+ z force CZ  |    CZp =  -0.000000    CZq =  -1.185582    CZr =  -0.000001
+ x mom.  Cl  |    Clp =  -0.332659    Clq =  -0.000000    Clr =  28.811558
+ y mom.  Cm  |    Cmp =   0.000000    Cmq =  -0.547736    Cmr =  -0.000001
+ z mom.  Cn  |    Cnp = -26.407654    Cnq =   0.000000    Cnr = -14.277269
+
+                  aileron      d1     elevator     d2     rudder       d3 
+                  ----------------    ----------------    ----------------
+ x force CX  |   CXd1 =  -0.000000   CXd2 =   0.003146   CXd3 =  -0.000000
+ y force CY  |   CYd1 =   0.000000   CYd2 =   0.000000   CYd3 =  -0.002595
+ z force CZ  |   CZd1 =  -0.000000   CZd2 =  -0.001829   CZd3 =  -0.000000
+ x mom.  Cl  |   Cld1 =  -0.000000   Cld2 =  -0.000000   Cld3 =  -0.001315
+ y mom.  Cm  |   Cmd1 =   0.000000   Cmd2 =  -0.001119   Cmd3 =  -0.000000
+ z mom.  Cn  |   Cnd1 =  -0.000000   Cnd2 =   0.000000   Cnd3 =   0.014065
+
+
