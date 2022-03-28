@@ -1,6 +1,10 @@
-function BatteryModel_MAT(Distance_Requirement, Max_Power_Requirement)
+function [maxpower, distance_output] = BatteryModel_MAT(Distance_Requirement, Max_Power_Requirement)
+
+%Select Flight Data Folder
+userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
+
 %Inputs
-    filename = uigetfile('*.mat');
+    filename = uigetfile({'*.mat'},'Select a file','C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data');
 
 %Import all of the needed data from the Excel sheets here
     %From BAT sheet import 'Volt' and 'CurrTot' and 'EnrgTot' and 'TimeUS' as really long arrays
@@ -87,6 +91,10 @@ function BatteryModel_MAT(Distance_Requirement, Max_Power_Requirement)
     
     Vel_avg = mean(Speed_Real);
     Distance_Optimal = Vel_avg * Time(length(Time));
+
+%Outputs for ModelCenter
+maxpower=max(Power_Real);
+distance_output=Distance_Travelled(length(Distance_Travelled));
     
 
 %Verification and Predictions
