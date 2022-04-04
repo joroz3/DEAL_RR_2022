@@ -1,4 +1,4 @@
-function [maxpower, distance_output] = BatteryModel_MAT(Distance_Requirement, Max_Power_Requirement)
+function [maxpower, distance_output,filename] = BatteryModel_MAT(Distance_Requirement, Max_Power_Requirement)
 
 %Select Flight Data Folder
 userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
