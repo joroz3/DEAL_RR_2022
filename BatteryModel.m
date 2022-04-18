@@ -1,26 +1,44 @@
-function [maxpower, distance_output,filename] = BatteryModel_CSV(Distance_Requirement, Max_Power_Requirement)
+function [maxpower, distance_output, filename] = BatteryModel(input_place_holder_to_zero)
+
+valuetoignore= input_place_holder_to_zero*0; %ModelCenter MBSE is not happy when a MATLAB function does not have inputs
 
 %Select Flight Data Folder
 userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
 
-%Inputs Data from the Sheet
-    filename = uigetfile({'*.xlsx'},'Select a file','C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data');
+%Input Data
+    filename = uigetfile({'*.*'},'Select a file','C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data');
+    %filename = uigetfile({'*.*'});
+    [~,~,f_ext] = fileparts(filename);
+    if f_ext == ".xlsx" %Import needed data from Excel
+        %From BAT sheet import 'Volt' and 'CurrTot' and 'EnrgTot' and 'TimeUS'
+        BAT=xlsread(filename, 'BAT');
+        V_Real = BAT(:,3); %Volts
+        I_Real = BAT (:,6); %Amps
+        Enrg_Real = BAT(:,7); %W*s
+        Time = BAT(:,2);
 
-%Import all of the needed data from the Excel sheets here
-    %From BAT sheet import 'Volt' and 'CurrTot' and 'EnrgTot' and 'TimeUS'
-    BAT=xlsread(filename, 'BAT');
-    V_Real = BAT(:,3); %Volts
-    I_Real = BAT (:,6); %Amps
-    Enrg_Real = BAT(:,7); %W*s
-    Time = BAT(:,2);
-    
-    %From AETR sheet import 'Thr'
-    AETR=xlsread(filename,'AETR');
-    Throt_Real = AETR(:,5); %Percentage of the total thrust (range of 0-100%)
-    
-    %From ASRP import 'Airspeed'
-    ASRP=xlsread(filename,'ASRP');
-    Speed_Real = ASRP(:,3);
+        %From AETR sheet import 'Thr'
+        AETR=xlsread(filename,'AETR');
+        Throt_Real = AETR(:,5); %Percentage of the total thrust (range of 0-100%)
+
+        %From ASRP import 'Airspeed'
+        ARSP=xlsread(filename,'ASRP');
+        Speed_Real = ARSP(:,3);
+    elseif f_ext == ".mat" %Import needed data from the MAT file
+        load(filename, 'BAT', 'AETR', 'ASRP');
+        V_Real = BAT(:,3); %Volts
+        I_Real = BAT(:,6); %Amps
+        Enrg_Real = BAT(:,7); %kW*hrs
+        Time = BAT(:,2);
+
+        %From AETR sheet import 'Thr'
+        Throt_Real = AETR(:,5); %Percentage of the total, which is '100'?
+
+        %From ASRP import 'Airspeed'
+        Speed_Real = ASRP(:,3);
+    else
+        error("Incorrect file type, please choose an Excel or MAT file.");
+    end
 
     
 %Official specs for the battery we're using
@@ -29,7 +47,10 @@ userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
     Ahr = 2200; %Amp-hour rating of battery
     V_theor_min = 9.82;
     Vmax = max(V_Real); %Accounts for battery not being fully charged
-    Vmin = abs(V_theor_min - min(V_Real)); %Accounts for battery not fully discharging
+    Vmin = V_theor_min - min(V_Real); %Accounts for battery not fully discharging
+    if Vmin < 0
+        Vmin = 0;
+    end
     Etot = (Vmax - Vmin) * Ahr / 3600; %Ws
 
 
@@ -56,8 +77,6 @@ userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
     for i = 2 : length(Enrg_Real)
         Power_Real(i) = (Enrg_Real(i) - Enrg_Real(i-1)) / (Time(i) - Time(i-1)) * 10;
     end
-    Time(1)
-    Time(length(Time))
     
     
 %Downsizing real throttle so it has the same length as everything else
@@ -96,72 +115,41 @@ userpath('C:\ModelCenter MBSE Analyses\DEAL_RR_2022\Flight Data')
     Distance_Optimal = Vel_avg * Time(length(Time));
     
 
-%Outputs for ModelCenter
-maxpower=max(Power_Real);
-distance_output=Distance_Travelled(length(Distance_Travelled));
+%Outputs for ModelCenter (Requirement Verification)
+    maxpower = max(Power_Real);
+    distance_output = Distance_Travelled(length(Distance_Travelled));
 
-%Verification and Predictions
+
+%Predictions and Analysis
     dis_diff = (Distance_Optimal - Distance_Travelled(length(Distance_Travelled))) / Distance_Optimal * 100;
     en_dif = (Etot - Enrg_Real(length(Enrg_Real))) / Etot * 100;
-    preds = strings([2, 4]);
-    verif = strings([2, 4]);
+    preds = strings([1, 7]);
+    preds(1, 1) = maxpower;
+    preds(1, 2) = distance_output;
     
-    %Prediction
     if dis_diff > 10 && Distance_Travelled(length(Distance_Travelled)) < Distance_Optimal
-        preds(1, 1) = "Range Analysis";
-        preds(1, 2) = Distance_Travelled(length(Distance_Travelled));
         preds(1, 3) = Distance_Optimal;
         preds(1, 4) = "The aircraft flight range was out of the optimum range. If weather conditions were normal, please check the battery and motor energy consumption levels."; 
     else
-       preds(1, 1) = "Range Analysis";
-       preds(1, 2) = Distance_Travelled(length(Distance_Travelled));
        preds(1, 3) = Distance_Optimal;
        preds(1, 4) = "Range was within tolerance of the optimum."; 
     end
     
     if en_dif > 10 && Enrg_Real(length(Enrg_Real)) < Etot
-        preds(2, 1) = "Energy Analysis";
-        preds(2, 2) = Enrg_Real(length(Enrg_Real));
-        preds(2, 3) = Etot;
-        preds(2, 4) = "Ensure battery was fully charged and the aircraft was flying during this flight, strapped down flights will not pass this test.";
+        preds(1, 5) = Enrg_Real(length(Enrg_Real));
+        preds(1, 6) = Etot;
+        preds(1, 7) = "Ensure battery was fully charged and the aircraft was flying during this flight, strapped down flights will not pass this test.";
     elseif en_dif > 10 && Enrg_Real(length(Enrg_Real)) > Etot
-        preds(2, 1) = "Energy Analysis";
-        preds(2, 2) = Enrg_Real(length(Enrg_Real));
-        preds(2, 3) = Etot;
-        preds(2, 4) = "The aircraft drew more energy than normal, either the motor or battery may need maintenance.";
+        preds(1, 5) = Enrg_Real(length(Enrg_Real));
+        preds(1, 6) = Etot;
+        preds(1, 7) = "The aircraft drew more energy than normal, either the motor or battery may need maintenance.";
     else
-        preds(2, 1) = "Energy Analysis";
-        preds(2, 2) = Enrg_Real(length(Enrg_Real));
-        preds(2, 3) = Etot;
-        preds(2, 4) = "Battery energy consumption was within the normal range, performance is at its optimum.";
+        preds(1, 5) = Enrg_Real(length(Enrg_Real));
+        preds(1, 6) = Etot;
+        preds(1, 7) = "Battery energy consumption was within the normal range, performance is at its optimum.";
     end
-    
-    %Requirement verification
-    if max(Power_Real) < Max_Power_Requirement
-        verif(1, 1) = "Power Requirement Verification";
-        verif(1, 2) = max(Power_Real);
-        verif(1, 3) = Max_Power_Requirement;
-        verif(1, 4) = "Maximum power was less than the requirement level at all time. Requirement met.";
-    else
-        verif(1, 1) = "Power Requirement Verification";
-        verif(1, 2) = max(Power_Real);
-        verif(1, 3) = Max_Power_Requirement;
-        verif(1, 4) = "Maximum power exceeded the required level in at least one place. Requirement not met.";
-    end    
-    
-    if Distance_Travelled(length(Distance_Travelled)) > Distance_Requirement
-        verif(2, 1) = "Distance Requirement Verification";
-        verif(2, 2) = Distance_Travelled(length(Distance_Travelled));
-        verif(2, 3) = Distance_Requirement;
-        verif(2, 4) = "Aircraft was able to travel more than the required distance. Requirement met.";
-    else
-        verif(2, 1) = "Distance Requirement Verification";
-        verif(2, 2) = Distance_Travelled(length(Distance_Travelled));
-        verif(2, 3) = Distance_Requirement;
-        verif(2, 4) = "Aircraft was not able to travel the required distance. Requirement not met.";
-    end
-    
-%Graphs
+
+%Output Graphs
     fig_1 = figure('visible','off');
     plot(1:100, power, "LineWidth",3);
     hold on
@@ -188,21 +176,11 @@ distance_output=Distance_Travelled(length(Distance_Travelled));
     title('Distance vs. Energy Consumed');
     legend('Predicted','Real','Location','southeast');
     
-%Output Data & Graphs
-    Processed_Data_Table = array2table([Time Throt_Interpolated V_Real I_Real Enrg_Real Power_Real SOC_Real Distance_Travelled]);
-    Processed_Data_Table.Properties.VariableNames = {'Time (s)', 'Throttle Input', 'Voltage(V)', 'Current (A)', 'Total Energy Consumed (W*s)', 'Power Usage (W)', 'Charge Percent', 'Total Distance Travelled (m)'};
-    
-    Prediction_Table = array2table(preds);
-    Prediction_Table.Properties.VariableNames = {'Data Point', 'Real Value', 'Predicted Value', 'Analysis'};
-    
-    Verification_Table = array2table(verif);
-    Verification_Table.Properties.VariableNames = {'Requirement', 'Real Value', 'Requirement Value', 'Requirement Met?'};
-    
-    writetable(Processed_Data_Table,'BatteryOut.xlsx', 'Sheet',1);
-    writetable(Prediction_Table,'BatteryOut.xlsx', 'Sheet',2);
-    writetable(Verification_Table,'BatteryOut.xlsx', 'Sheet',3);
-    
     saveas(fig_1,'Power_vs_Throttle','jpg');
     saveas(fig_2,'Voltage_vs_SOC','jpg');
     saveas(fig_3,'Distance_vs_EnergyUsage','jpg');
+    
+%Output Data
+    Data_Table = array2table(preds);
+    Data_Table.Properties.VariableNames = {'Maximum Power', 'Real Distance', 'Theoretical Distance', 'Distance Analysis', 'Energy Consumption', 'Theoretical Energy Consumption', 'Energy Analysis'};
 end
